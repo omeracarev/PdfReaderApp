@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${pageTitle}">Testo HTML</title>
+    <link rel="stylesheet" type="text/css" href="styles.css">
+</head>
+<body>
+<h1>Pdf Reader App</h1>
+<div style="justify-content: center; display: flex;">
+    <button id="uploaderButton" onclick="window.open('/upload-form','_self')">Yükle</button>
+    <button id="quitButton" onclick="window.open('/quit','_self');">Çıkış</button>
+</div>
+
+<br>
+<div id="uploadedFiles">
+
+</div>
+<div class="pdfUI">
+    <button onclick="changePage(-1);">Geri</button>
+    <input type="text" id="pdfPages" >
+    <button onclick="changePage(1);">İleri</button>
+</div>
+<img id="pdfContainer" width="100%" height="100%">
+
+<script>
+
+    var currentPdfPage = 0;
+    var currentSrc = 0;
+    var totalPdfPage = 0;
+
+    function updatePdfPages(currentPage,TotalPage){
+        document.getElementById("pdfPages").value = (currentPage+1)+" / "+TotalPage;
+    }
+    function getPdfTotalCount(getCurrenPdfId){
+        fetch('http://localhost:8080/pdfcounter/'+getCurrenPdfId)
+            .then(response => response.json())
+            .then(data => {
+               const totalCount = data;
+               totalPdfPage = totalCount;
+               updatePdfPages(currentPdfPage,totalPdfPage);
+            })
+            .catch(error => {
+
+                console.error('Veri alınamadı: ', error);
+            });
+    }
+
+    // JSON verisini almak için bir HTTP GET isteği yapın (Nameleri Çektir)
+    fetch('http://localhost:8080/pdfs/names')
+        .then(response => response.json())
+        .then(data => {
+            // JSON dizisini işleyin ve HTML sayfasına ekleyin
+            const pdfList = document.getElementById('uploadedFiles');
+            data.forEach(pdfName => {
+                const button = document.createElement('button');
+                button.textContent = pdfName;
+                pdfList.appendChild(button);
+            });
+        })
+        .catch(error => {
+
+            console.error('Veri alınamadı: ', error);
+        });
+
+    fetch('http://localhost:8080/pdfs/ids')
+        .then(response => response.json())
+        .then(data => {
+            // JSON dizisini işleyin ve HTML sayfasına ekleyin
+            const pdfList = document.getElementById('uploadedFiles');
+            for (let i=0; i<data.length; i++){
+                const buti = pdfList.children.item(i);
+                buti.onclick = function (){
+                    changeIframeSrc(data[i]);
+                }
+            }
+        })
+        .catch(error => {
+            window.open("http://localhost:8080/index","_self");
+            console.error('Veri alınamadı: ', error);
+        });
+
+     function changeIframeSrc(iSrc){
+         currentSrc = iSrc;
+         currentPdfPage = 0;
+         const pdfContainer = document.getElementById("pdfContainer");
+         pdfContainer.src = "/pdf/"+iSrc+"/"+currentPdfPage;
+         getPdfTotalCount(iSrc);
+
+
+     }
+
+     function changePage(number){
+         currentPdfPage += number;
+         if (currentPdfPage>=totalPdfPage){
+             currentPdfPage=0;
+         } else if(currentPdfPage<0) {
+             currentPdfPage = totalPdfPage-1;
+         }
+         pdfContainer.src = "/pdf/"+currentSrc+"/"+currentPdfPage;
+         updatePdfPages(currentPdfPage,totalPdfPage);
+
+     }
+</script>
+</body>
+</html>

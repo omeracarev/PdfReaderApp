@@ -1,0 +1,44 @@
+h1{
+    text-align: center;
+}
+
+#uploaderButton{
+    left:0;
+    right: 0;
+    padding: 15px;
+    width: 45%;
+    cursor: pointer;
+    display: inline;
+}
+
+#quitButton{
+    left:0;
+    right: 0;
+    padding: 15px;
+    width: 45%;
+    cursor: pointer;
+    display: inline;
+}
+
+#uploadedFiles{
+    text-align: center;
+    justify-content: center;
+    display: flex;
+    margin: 10px;
+}
+
+#uploadedFiles button{
+    padding: 10px;
+    margin: 3px;
+    cursor: pointer;
+}
+
+.pdfUI{
+    display: flex;
+    justify-content: center;
+    margin: 10px;
+}
+
+.pdfUI input[type="text"]{
+    text-align: center;
+}
